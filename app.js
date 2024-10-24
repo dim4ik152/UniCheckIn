@@ -2,11 +2,16 @@ let provider;
 let web3Modal;
 
 async function init() {
-    // Инициализация Web3Modal
-    web3Modal = new Web3Modal({
-        cacheProvider: false, // Не кэшировать провайдер
-        providerOptions: {} // Здесь можно добавить опции для дополнительных провайдеров
-    });
+    try {
+        // Инициализация Web3Modal
+        web3Modal = new Web3Modal({
+            cacheProvider: false, // Не кэшировать провайдер
+            providerOptions: {} // Здесь можно добавить опции для дополнительных провайдеров
+        });
+        console.log("Web3Modal initialized");
+    } catch (error) {
+        console.error("Error initializing Web3Modal:", error);
+    }
 }
 
 async function connectWallet() {
@@ -36,9 +41,7 @@ async function connectWallet() {
 async function checkIfWalletIsConnected() {
     try {
         // Проверяем, подключен ли кошелек
-        provider = await web3Modal.connect();
-        const ethersProvider = new ethers.providers.Web3Provider(provider);
-        const accounts = await ethersProvider.listAccounts();
+        const accounts = await provider.listAccounts();
 
         if (accounts.length) {
             const account = accounts[0];
@@ -83,4 +86,4 @@ document.getElementById('connectButton').addEventListener('click', connectWallet
 document.getElementById('checkInButton').addEventListener('click', checkIn);
 
 // Инициализация при загрузке страницы
-init().then(checkIfWalletIsConnected); // Добавляем проверку подключения
+init().then(checkIfWalletIsConnected).catch(console.error);
