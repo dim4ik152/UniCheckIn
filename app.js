@@ -17,6 +17,10 @@ async function init() {
 async function connectWallet() {
     try {
         // Подключение к кошельку
+        if (!web3Modal) {
+            console.error('Web3Modal not initialized');
+            return;
+        }
         provider = await web3Modal.connect(); // <--- Здесь происходит ошибка, если web3Modal не инициализирован
         const ethersProvider = new ethers.providers.Web3Provider(provider);
         const signer = ethersProvider.getSigner();
@@ -41,14 +45,16 @@ async function connectWallet() {
 async function checkIfWalletIsConnected() {
     try {
         // Проверяем, подключен ли кошелек
-        const accounts = await provider.listAccounts();
+        if (provider) {
+            const accounts = await provider.listAccounts();
 
-        if (accounts.length) {
-            const account = accounts[0];
-            console.log('Found an account:', account);
-            document.getElementById('wallet-address').innerText = `Connected: ${account}`;
-        } else {
-            console.log('No accounts found');
+            if (accounts.length) {
+                const account = accounts[0];
+                console.log('Found an account:', account);
+                document.getElementById('wallet-address').innerText = `Connected: ${account}`;
+            } else {
+                console.log('No accounts found');
+            }
         }
     } catch (err) {
         console.error('Error checking accounts:', err);
