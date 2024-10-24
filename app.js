@@ -1,79 +1,27 @@
-let provider;
-let web3Modal;
-
-// Инициализация Web3Modal
-async function init() {
-    try {
-        // Инициализация Web3Modal
-        web3Modal = new Web3Modal({
-            cacheProvider: false, // Не кэшировать провайдер
-            providerOptions: {} // Здесь можно добавить опции для дополнительных провайдеров
-        });
-        console.log("Web3Modal initialized");
-    } catch (error) {
-        console.error("Error initializing Web3Modal:", error);
-    }
-}
-
-// Функция подключения к кошельку
+// Функция для подключения к кошельку
 async function connectWallet() {
-    try {
-        if (!web3Modal) {
-            console.error('Web3Modal not initialized');
-            return;
+    if (typeof window.ethereum !== 'undefined') {
+        try {
+            // Запрос на подключение к кошельку
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            const account = accounts[0];
+            console.log('Connected account:', account);
+            document.getElementById('wallet-address').innerText = `Connected: ${account}`;
+        } catch (err) {
+            console.error('Error connecting to wallet:', err);
         }
-
-        // Подключение к кошельку
-        provider = await web3Modal.connect();
-        const ethersProvider = new ethers.providers.Web3Provider(provider);
-        const signer = ethersProvider.getSigner();
-
-        const account = await signer.getAddress();
-        console.log('Connected account:', account);
-
-        document.getElementById('wallet-address').innerText = `Connected: ${account}`;
-
-        // Добавляем обработчик события для отключения кошелька
-        provider.on("disconnect", (error) => {
-            console.log("Wallet disconnected", error);
-            provider = null; // Сбросить провайдер
-            document.getElementById('wallet-address').innerText = "Not connected";
-        });
-
-        // Проверяем, если кошелек уже подключен
-        await checkIfWalletIsConnected();
-
-    } catch (err) {
-        console.error('Error connecting to wallet:', err);
-    }
-}
-
-// Проверяем, подключен ли кошелек
-async function checkIfWalletIsConnected() {
-    try {
-        if (provider) {
-            const accounts = await provider.listAccounts();
-
-            if (accounts.length) {
-                const account = accounts[0];
-                console.log('Found an account:', account);
-                document.getElementById('wallet-address').innerText = `Connected: ${account}`;
-            } else {
-                console.log('No accounts found');
-            }
-        }
-    } catch (err) {
-        console.error('Error checking accounts:', err);
+    } else {
+        alert('Please install a cryptocurrency wallet like MetaMask.');
     }
 }
 
 // Функция для выполнения Check In
 async function checkIn() {
-    if (provider) {
-        const ethersProvider = new ethers.providers.Web3Provider(provider);
-        const signer = ethersProvider.getSigner();
+    if (typeof window.ethereum !== 'undefined') {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
 
-        const contractAddress = '0x85c2658824ACE3c14FE2125f9D19e1Eee75DD2De'; // Укажи адрес твоего контракта
+        const contractAddress = '0x85c2658824ACE3c14FE2125f9D19e1Eee75DD2De'; // Укажите адрес вашего контракта
         const contractABI = [
             "function checkIn() payable"
         ];
@@ -90,16 +38,10 @@ async function checkIn() {
             console.error('Transaction failed:', err);
         }
     } else {
-        alert('Please connect your wallet first');
+        alert('Please connect your wallet first.');
     }
 }
 
 // Привязываем кнопки к функциям
 document.getElementById('connectButton').addEventListener('click', connectWallet);
 document.getElementById('checkInButton').addEventListener('click', checkIn);
-
-// Инициализация при загрузке страницы
-window.addEventListener('load', async () => {
-    await init(); // Инициализируем Web3Modal
-    await checkIfWalletIsConnected(); // Проверяем, подключен ли кошелек
-});
