@@ -4,6 +4,7 @@ let web3Modal;
 // Инициализация Web3Modal
 async function init() {
     try {
+        // Инициализация Web3Modal
         web3Modal = new Web3Modal({
             cacheProvider: false, // Не кэшировать провайдер
             providerOptions: {} // Здесь можно добавить опции для дополнительных провайдеров
@@ -38,7 +39,7 @@ async function connectWallet() {
             provider = null; // Сбросить провайдер
             document.getElementById('wallet-address').innerText = "Not connected";
         });
-        
+
         // Проверяем, если кошелек уже подключен
         await checkIfWalletIsConnected();
 
