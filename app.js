@@ -20,8 +20,35 @@ async function connectWallet() {
         console.log('Connected account:', account);
 
         document.getElementById('wallet-address').innerText = `Connected: ${account}`;
+
+        // Добавляем обработчик события для отключения кошелька
+        provider.on("disconnect", (error) => {
+            console.log("Wallet disconnected", error);
+            provider = null; // Сбросить провайдер
+            document.getElementById('wallet-address').innerText = "Not connected";
+        });
+
     } catch (err) {
         console.error('Error connecting to wallet:', err);
+    }
+}
+
+async function checkIfWalletIsConnected() {
+    try {
+        // Проверяем, подключен ли кошелек
+        provider = await web3Modal.connect();
+        const ethersProvider = new ethers.providers.Web3Provider(provider);
+        const accounts = await ethersProvider.listAccounts();
+
+        if (accounts.length) {
+            const account = accounts[0];
+            console.log('Found an account:', account);
+            document.getElementById('wallet-address').innerText = `Connected: ${account}`;
+        } else {
+            console.log('No accounts found');
+        }
+    } catch (err) {
+        console.error('Error checking accounts:', err);
     }
 }
 
@@ -56,4 +83,4 @@ document.getElementById('connectButton').addEventListener('click', connectWallet
 document.getElementById('checkInButton').addEventListener('click', checkIn);
 
 // Инициализация при загрузке страницы
-init();
+init().then(checkIfWalletIsConnected); // Добавляем проверку подключения
