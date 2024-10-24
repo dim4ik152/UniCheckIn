@@ -17,7 +17,7 @@ async function init() {
 async function connectWallet() {
     try {
         // Подключение к кошельку
-        provider = await web3Modal.connect();
+        provider = await web3Modal.connect(); // <--- Здесь происходит ошибка, если web3Modal не инициализирован
         const ethersProvider = new ethers.providers.Web3Provider(provider);
         const signer = ethersProvider.getSigner();
 
