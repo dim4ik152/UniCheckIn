@@ -11,7 +11,7 @@ async function connectWallet() {
             console.error('Error connecting to wallet:', err);
         }
     } else {
-        alert('Please install a cryptocurrency wallet like MetaMask.');
+        alert('Please install a cryptocurrency wallet like MetaMask, OKX Wallet, or any other wallet that supports Ethereum.');
     }
 }
 
